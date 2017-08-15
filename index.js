@@ -8,13 +8,17 @@ app.get('/', function(req, res){
 });
 io.on('connection', function(socket){
     console.log('a user connected');
-    socket.on('chat message', function(msg){
-        console.log('message: ' + msg);
-        io.emit('chat message', msg);  // 服务端发送给客户端
+    socket.on('join', function(name) {
+        socket.nickname = name;
+        socket.broadcast.emit('announcement', name + ' join the chat.');
+    })
+    socket.on('chat message', function(msg, fn){
+        socket.broadcast.emit('chat message', socket.nickname, msg);  // 服务端发送给客户端
+        fn();
     });
     socket.on('disconnect', function(){
-        console.log('user disconnected');
-        io.emit('disconnectInform', 'a user has left now');
+        console.log('a user disconnected');
+        io.emit('disconnectInform', socket.nickname + ' has just left now');
     });
 });
 app.use(express.static('socketIo'))

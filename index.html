@@ -10,7 +10,9 @@
       form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages li { padding: 5px 10px; }
-      #messages span { text-align: center; color: gray; font-size: 14px; display: block; width: 30%; }
+      #messages li.announcement {display: block; height: 16px; width: 20%; margin: 0 auto; text-align: center; font-size: 14px; color: #fff; border-radius: 8px; padding:1px; background-color: gray;}
+      #messages li.confirmed {border-left: 3px solid green;}
+      #messages span { text-align: center; color: gray; font-size: 14px; display: block; width: 100%; background-color: #fff}
       #messages li:nth-child(odd) { background: #eee; }
     </style>
   </head>
@@ -19,16 +21,33 @@
   <script>
       $(function(){
         var socket = io();
+        /**
+         * 辅助函数定义
+        */
+        function addMessage (from, text) {
+          var showMsg = '<b>' + from + '</b>: ' + text;
+          var li = $('<li>').html(showMsg);
+          $('#messages').append(li);
+          return li;
+        }
+        socket.emit('join', prompt('What is your nickname?'));
         $('form').submit(function(){
-            socket.emit('chat message', $('#m').val()); // 客户端把消息传递给服务端
+            var msg = $('#m').val();
             $('#m').val('');
+            var li = addMessage('me', msg);
+            socket.emit('chat message', msg, function(){
+              li.addClass('confirmed');
+            }); // 客户端把消息传递给服务端
             return false;
         });
-        socket.on('chat message', function(msg){
-            $('#messages').append($('<li>').text(msg));
+        socket.on('announcement', function(msg){
+          var li = $('<li>').addClass('announcement').text(msg);
+          $('#messages').append(li);
         });
+        socket.on('chat message', addMessage);
         socket.on('disconnectInform', function(msg) {
-            $('#message').append($('<li>').html('<span>' + msg + '</span>'));
+            var leftMsg = '<span>' + msg + '</span>';
+            $('#messages').append($('<li>').html(leftMsg));
         })
       })
   </script>
