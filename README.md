@@ -7,8 +7,11 @@
 
 *增加了socket.io文档中提到的几点功能如下*
 > Broadcast a message to connected users when someone connects or disconnects
+
 > Add support for nicknames
+
 > Don’t send the same message to the user that sent it himself. Instead, append the message directly as soon as he presses enter.
+
 > Add private messaging (uncomplished need request)
 
 MIT
